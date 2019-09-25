@@ -14,87 +14,12 @@ from tkinter import filedialog
 from tkinter import messagebox
 from PIL import Image, ImageTk
 
-
-code_letter=['自動車 自動車 及び バイク保険 バイク保険', 'ALセット版普通傷害保険', 'ALセット版交通傷害保険', 'ダイレクト傷害保険(普傷 ・家傷) ', 'グループ傷害保険(普傷 ・交普傷 ・交)', '入院手術保険', 'ペット保険']
-Entries=[]
-root_2=tkinter.Tk()
-root_2.geometry("720x406")
-root_2.title('Webscrawaii')
-image = Image.open("broly.jpg")
-background_image=ImageTk.PhotoImage(image)
-background_label = tkinter.Label(root_2, image=background_image)
-background_label.pack()
-y_=70
-i=70
-CODE=[]
-REGEX=''
-
-
-for letter in code_letter:
-    label =  tkinter.Label(root_2, text = letter).place(x = 20,y = y_)
-    y_=y_+20
-    entry=tkinter.Entry(root_2)
-    entry.place(x=600,y=i)
-    i=i+20
-    Entries.append(entry)
-    
 def get1():
     global LETTER
     LETTER=[]
     for entry in Entries:
         LETTER.append(entry.get())
     
-label1 =tkinter.Label(root_2, text = 'Input first letter of the code. お願いね')
-label1.place(x =180,y =20)
-label1.config(font=('Calibri', 22))
-sbmitbtn = tkinter.Button(root_2, text = "Submit",activebackground = "pink", activeforeground = "blue", command=lambda: [get1(), root_2.destroy()])
-sbmitbtn.pack()
-
-sbmitbtn.place(x = 30, y = 220)
-
-
-root_2.mainloop()
-
-
-
-for c in LETTER:
-    if len(c)!=0:
-        CODE.append(c)
-
-REGEX=''
-for j in CODE:
-    REGEX= j+'[0-9]{4,11}\-.{8}?'+'|'+j+'[0-9]{4,11}.?'+'|'+REGEX
-
-REGEX=REGEX[:-1]
-
-
-
-
-root = tkinter.Tk()
-root.withdraw()
-
-file = filedialog.askopenfile(parent=root,mode='rb',title='Choose a file')
-if file != None:
-    data = file.read()
-    file.close()
-    print("I got %d bytes from this file." % len(data))
-
-    
-
-df=pd.read_excel(file.name, sheet_name='URL一覧', encoding = 'utf-8')
-URLS=df.loc[:,'新URL']
-URLS_clean = URLS.fillna('no url')
-old_code= df.loc[:,'募文番号']
-code_clean=old_code.fillna('no code')
-code_clean=code_clean[2:]
-conn_urls=[]
-new_code=[]
-prox_list=['85.196.183.162:80', '202.182.121.205:80', '45.77.135.170:80', '54.180.123.253:8080']
-proxies={'https':random.choice(prox_list)}
-sessions=[]
-Manu={}
-
-new_origin={}
 
 def L(data_):
     global N_URLS
@@ -106,9 +31,6 @@ def L(data_):
             N_URLS.append(data_.iloc[c])
             DIC={ i : None for i in N_URLS}
     return  DIC
-
-Origin=pd.Series(code_clean.values, index=list(L(URLS_clean).keys())).to_dict()
-
 
 def scrape(url):
     try:
@@ -146,42 +68,6 @@ def scrape(url):
     return auto
 
 
-
-new_origin={k:scrape(k)for k , _ in L(URLS_clean).items()}
-
-
-
-#new_code=map(scrape, L(URLS_clean))
-
-
-
-##for i in L(URLS_clean):
-##    scrape(i)
-##    print(i)
-
-   
-df2=pd.DataFrame(data=list(new_origin.values()))
-df3=pd.DataFrame.from_dict(Manu, orient='index')
-
-
-for i in range(int(df2.shape[0])):
-    for j in range(int(df2.shape[1])):
-        if df2[j][i]==None:
-            pass
-        elif len(df2[j][i])<4:
-            del df2.iloc[i,j]
-        elif df2[j][i][-1].isdigit()==False:
-            df2[j][i]=df2[j][i][:-1]
-        else:
-            pass
-            
-codes=df2.values.tolist()
-
-for i, j in zip(new_origin,codes):
-    new_origin[i]=j
-    
-        
-    
 def compare(D1, D2):
     global N1
     N1=[]
@@ -201,14 +87,130 @@ def compare(D1, D2):
             N3.append('NOT OK')
             print('Not', D1[D1_keys], D2[D2_keys])
 
-compare(Origin, new_origin)
 
 
-D= pd.DataFrame(list(zip(N1, N2, N3)), columns=['URLS', 'codes', 'check'])
+if __name__ == "__main__":
+    code_letter=['自動車 自動車 及び バイク保険 バイク保険', 'ALセット版普通傷害保険', 'ALセット版交通傷害保険', 'ダイレクト傷害保険(普傷 ・家傷) ', 'グループ傷害保険(普傷 ・交普傷 ・交)', '入院手術保険', 'ペット保険']
+    Entries=[]
+    root_2=tkinter.Tk()
+    root_2.geometry("720x406")
+    root_2.title('Webscrawaii')
+    image = Image.open("broly.jpg")
+    background_image=ImageTk.PhotoImage(image)
+    background_label = tkinter.Label(root_2, image=background_image)
+    background_label.pack()
+    y_=70
+    i=70
+    CODE=[]
+    REGEX=''
 
 
-D.to_excel('new_codes.xlsx', encoding='utf_8_sig')
-df3.to_excel('URLS_to_be_checked_manually.xlsx', encoding='utf_8_sig')
+    for letter in code_letter:
+        label =  tkinter.Label(root_2, text = letter).place(x = 20,y = y_)
+        y_=y_+20
+        entry=tkinter.Entry(root_2)
+        entry.place(x=600,y=i)
+        i=i+20
+        Entries.append(entry)
+
+    label1 =tkinter.Label(root_2, text = 'Input first letter of the code. お願いね')
+    label1.place(x =180,y =20)
+    label1.config(font=('Calibri', 22))
+    sbmitbtn = tkinter.Button(root_2, text = "Submit",activebackground = "pink", activeforeground = "blue", command=lambda: [get1(), root_2.destroy()])
+    sbmitbtn.pack()
+
+    sbmitbtn.place(x = 30, y = 220)
+
+
+    root_2.mainloop()
+
+
+
+    for c in LETTER:
+        if len(c)!=0:
+            CODE.append(c)
+
+    REGEX=''
+    for j in CODE:
+        REGEX= j+'[0-9]{4,11}\-.{8}?'+'|'+j+'[0-9]{4,11}.?'+'|'+REGEX
+
+    REGEX=REGEX[:-1]
+
+
+
+
+    root = tkinter.Tk()
+    root.withdraw()
+
+    file = filedialog.askopenfile(parent=root,mode='rb',title='Choose a file')
+    if file != None:
+        data = file.read()
+        file.close()
+        print("I got %d bytes from this file." % len(data))
+
+
+
+    df=pd.read_excel(file.name, sheet_name='URL一覧', encoding = 'utf-8')
+    URLS=df.loc[:,'新URL']
+    URLS_clean = URLS.fillna('no url')
+    old_code= df.loc[:,'募文番号']
+    code_clean=old_code.fillna('no code')
+    code_clean=code_clean[2:]
+    conn_urls=[]
+    new_code=[]
+    prox_list=['85.196.183.162:80', '202.182.121.205:80', '45.77.135.170:80', '54.180.123.253:8080']
+    proxies={'https':random.choice(prox_list)}
+    sessions=[]
+    Manu={}
+
+    new_origin={}
+
+    Origin=pd.Series(code_clean.values, index=list(L(URLS_clean).keys())).to_dict()
+
+
+    new_origin={k:scrape(k)for k , _ in L(URLS_clean).items()}
+
+
+
+    #new_code=map(scrape, L(URLS_clean))
+
+
+
+    ##for i in L(URLS_clean):
+    ##    scrape(i)
+    ##    print(i)
+
+
+    df2=pd.DataFrame(data=list(new_origin.values()))
+    df3=pd.DataFrame.from_dict(Manu, orient='index')
+
+
+    for i in range(int(df2.shape[0])):
+        for j in range(int(df2.shape[1])):
+            if df2[j][i]==None:
+                pass
+            elif len(df2[j][i])<4:
+                del df2.iloc[i,j]
+            elif df2[j][i][-1].isdigit()==False:
+                df2[j][i]=df2[j][i][:-1]
+            else:
+                pass
+
+    codes=df2.values.tolist()
+
+    for i, j in zip(new_origin,codes):
+        new_origin[i]=j
+
+
+
+    compare(Origin, new_origin)
+
+
+    D= pd.DataFrame(list(zip(N1, N2, N3)), columns=['URLS', 'codes', 'check'])
+
+
+    D.to_excel('new_codes.xlsx', encoding='utf_8_sig')
+    df3.to_excel('URLS_to_be_checked_manually.xlsx', encoding='utf_8_sig')
 
 
 
